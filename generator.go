@@ -12,10 +12,13 @@ import (
 )
 
 const (
-	Version  = 0
+	// Version used for creating token
+	Version = 0
+	// TokenSep used as a delimiter for the token
 	TokenSep = "."
 )
 
+// Generator represents a token generator
 type Generator struct {
 	secret string
 }
