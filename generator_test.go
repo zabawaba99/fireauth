@@ -1,6 +1,7 @@
 package fireauth
 
 import (
+	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
 	"reflect"
@@ -66,4 +67,22 @@ func TestCreateToken_Admin_NoData(t *testing.T) {
 	if _, err := gen.CreateToken(nil, options); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestCreateToken_TooLong(t *testing.T) {
+	gen := New("foo")
+	data := Data{"uid": "1", "bigKey": randData(1024)}
+	if _, err := gen.CreateToken(data, nil); err == nil {
+		t.Fatal("should have failed")
+	}
+}
+
+func randData(size int) string {
+	alphanum := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+	var bytes = make([]byte, size)
+	rand.Read(bytes)
+	for i, b := range bytes {
+		bytes[i] = alphanum[b%byte(len(alphanum))]
+	}
+	return string(bytes)
 }

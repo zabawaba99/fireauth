@@ -95,7 +95,12 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	// create the token
 	secureString := fmt.Sprintf("%s%s%s", encodedHeader, TokenSep, encodedClaim)
 	signature := sign(secureString, t.secret)
-	return fmt.Sprintf("%s%s%s", secureString, TokenSep, signature), nil
+	token := fmt.Sprintf("%s%s%s", secureString, TokenSep, signature)
+
+	if len(token) > 1024 {
+		return "", errors.New("Generated token is too long. The token cannot be longer than 1024 bytes.")
+	}
+	return token, nil
 }
 
 func encodedHeader() (string, error) {
