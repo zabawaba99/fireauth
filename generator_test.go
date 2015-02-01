@@ -46,8 +46,8 @@ func TestCreateToken_Data(t *testing.T) {
 		t.Fatal("Expected: %d\nActual: %d", Version, claim.Version)
 	}
 
-	if !reflect.DeepEqual(Data, claim.Data) {
-		t.Fatalf("auth data is not the same.Expected: %s\nActual: %s", Data, claim.Data)
+	if !reflect.DeepEqual(data, claim.Data) {
+		t.Fatalf("auth data is not the same.Expected: %s\nActual: %s", data, claim.Data)
 	}
 }
 

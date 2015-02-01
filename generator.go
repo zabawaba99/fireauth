@@ -55,14 +55,14 @@ func New(secret string) *Generator {
 }
 
 // CreateToken generates a new token with the given Data and options
-func (t *Generator) CreateToken(Data Data, options *Option) (string, error) {
+func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	// make sure we have valid parameters
-	if Data == nil && (options == nil || (!options.Admin && !options.Debug)) {
+	if data == nil && (options == nil || (!options.Admin && !options.Debug)) {
 		return "", errors.New("Data is empty and no options are set.  This token will have no effect on Firebase.")
 	}
 
-	// validate the Data
-	if err := validate(Data, (options != nil && options.Admin)); err != nil {
+	// validate the data
+	if err := validate(data, (options != nil && options.Admin)); err != nil {
 		return "", err
 	}
 
@@ -81,7 +81,7 @@ func (t *Generator) CreateToken(Data Data, options *Option) (string, error) {
 	}{
 		Option:   options,
 		Version:  Version,
-		Data:     Data,
+		Data:     data,
 		IssuedAt: time.Now().Unix(),
 	}
 
