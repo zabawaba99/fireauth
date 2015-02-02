@@ -44,7 +44,7 @@ func TestCreateToken_Data(t *testing.T) {
 	}
 
 	if claim.Version != Version {
-		t.Fatal("Expected: %d\nActual: %d", Version, claim.Version)
+		t.Fatalf("Expected: %d\nActual: %d", Version, claim.Version)
 	}
 
 	if !reflect.DeepEqual(data, claim.Data) {

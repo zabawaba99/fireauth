@@ -23,7 +23,7 @@ type Generator struct {
 	secret string
 }
 
-// Options represent the claims used when creating an authentication token
+// Option represent the claims used when creating an authentication token
 // https://www.firebase.com/docs/rest/guide/user-auth.html#section-rest-tokens-without-helpers
 type Option struct {
 	// NotBefote is the token "not before" date as a number of seconds since the Unix epoch.
