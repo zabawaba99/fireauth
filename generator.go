@@ -28,11 +28,11 @@ type Generator struct {
 type Option struct {
 	// NotBefote is the token "not before" date as a number of seconds since the Unix epoch.
 	// If specified, the token will not be considered valid until after this date.
-	NotBefore int `json:"nbf,omitempty"`
+	NotBefore int64 `json:"nbf,omitempty"`
 
 	// Expiration is the token expiration date as a number of seconds since the Unix epoch.
 	// If not specified, by default the token will expire 24 hours after the "issued at" date (iat).
-	Expiration int `json:"exp,omitempty"`
+	Expiration int64 `json:"exp,omitempty"`
 
 	// Admin when set to true to make this an "admin" token, which grants full read and
 	// write access to all data.
