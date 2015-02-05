@@ -1,6 +1,6 @@
 # Fireauth
 ---
-[![Build Status](https://travis-ci.org/zabawaba99/fireauth.svg?branch=master)](https://travis-ci.org/zabawaba99/fireauth)
+[![Build Status](https://travis-ci.org/zabawaba99/fireauth.svg?branch=master)](https://travis-ci.org/zabawaba99/fireauth) [![Coverage Status](https://coveralls.io/repos/zabawaba99/fireauth/badge.svg)](https://coveralls.io/r/zabawaba99/fireauth)
 ---
 
 A Firebase token generator written in Go
