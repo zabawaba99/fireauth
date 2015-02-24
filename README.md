@@ -8,7 +8,7 @@ A Firebase token generator written in Go
 ## Installation
 
 ```bash
-go get -u github.com/zabawaba99/fireauth
+go get -u github.com/fullcage/fireauth
 ```
 
 ## Usage
@@ -16,7 +16,7 @@ go get -u github.com/zabawaba99/fireauth
 Import fireauth
 
 ```go
-import "github.com/zabawaba99/fireauth"
+import "github.com/fullcage/fireauth"
 ```
 
 Create a TokenGenerator
@@ -55,7 +55,7 @@ if err != nil {
 println("my token: ",token)
 ```
 
-Check the [GoDocs](http://godoc.org/github.com/zabawaba99/fireauth) or
+Check the [GoDocs](http://godoc.org/github.com/fullcage/fireauth) or
 [Firebase Auth Documentation](https://www.firebase.com/docs/rest/guide/user-auth.html#section-overview) for more details
 
 ## Contributing
