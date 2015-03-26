@@ -118,8 +118,6 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 
 func validate(data Data, isAdmind bool) error {
 	uid, containsID := data["uid"]
-	// TODO: if ther eis no `uid` and is admin, then will fail on the string check...
-	//       why do we have an `isAdmind` flag?
 	if !containsID && !isAdmind {
 		return ErrNoUIDKey
 	}

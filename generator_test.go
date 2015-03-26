@@ -100,6 +100,10 @@ func TestValidate(t *testing.T) {
 	if err := validate(Data{"uid": strings.Repeat(" ", MaxUIDLen+1)}, true); err != ErrUIDTooLong {
 		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrUIDTooLong, err)
 	}
+	// No uid in admin mode should not fail.
+	if err := validate(Data{}, true); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestGenerateClaim(t *testing.T) {
