@@ -16,6 +16,8 @@ const (
 	Version = 0
 	// TokenSep used as a delimiter for the token
 	TokenSep = "."
+	// MaxUIDLen is the maximum length for an UID
+	MaxUIDLen = 256
 )
 
 // Firebase specific values for header
@@ -115,6 +117,8 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 
 func validate(data Data, isAdmind bool) error {
 	uid, containsID := data["uid"]
+	// TODO: if ther eis no `uid` and is admin, then will fail on the string check...
+	//       why do we have an `isAdmind` flag?
 	if !containsID && !isAdmind {
 		return ErrNoUIDKey
 	}
@@ -123,7 +127,7 @@ func validate(data Data, isAdmind bool) error {
 		return ErrUIDNotString
 	}
 
-	if containsID && len(uid.(string)) > 256 {
+	if containsID && len(uid.(string)) > MaxUIDLen {
 		return ErrUIDTooLong
 	}
 	return nil

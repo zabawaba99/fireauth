@@ -52,9 +52,17 @@ func TestCreateTokenData(t *testing.T) {
 	}
 }
 
-func TestCreateTokenNoData(t *testing.T) {
+func TestCreateTokenFailure(t *testing.T) {
 	if _, err := New("foo").CreateToken(nil, nil); err == nil {
 		t.Fatal("CreateToken without data nor option should fail")
+	}
+	if _, err := New("foo").CreateToken(Data{}, nil); err == nil {
+		t.Fatal("CreateToken with invalid data should fail")
+	}
+	ch := make(chan struct{})
+	defer close(ch)
+	if _, err := New("foo").CreateToken(Data{"uid": "1234", "invalid": ch}, &Option{}); err == nil {
+		t.Fatal("Invalid data types should make the token creation fail")
 	}
 }
 
@@ -79,4 +87,16 @@ func randData(t *testing.T, size int) string {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
 	return string(bytes)
+}
+
+func TestValidate(t *testing.T) {
+	if err := validate(nil, false); err != ErrNoUIDKey {
+		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrNoUIDKey, err)
+	}
+	if err := validate(Data{"uid": 42}, true); err != ErrUIDNotString {
+		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrUIDNotString, err)
+	}
+	if err := validate(Data{"uid": strings.Repeat(" ", MaxUIDLen+1)}, true); err != ErrUIDTooLong {
+		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrUIDTooLong, err)
+	}
 }
