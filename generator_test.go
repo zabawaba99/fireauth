@@ -10,15 +10,15 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	gen := New("foo")
-	if gen == nil {
+	if gen := New("foo"); gen == nil {
 		t.Fatal("generator should not be nil")
 	}
 }
 
-func TestCreateToken_Data(t *testing.T) {
+func TestCreateTokenData(t *testing.T) {
 	gen := New("foo")
 	data := Data{"uid": "1"}
+
 	token, err := gen.CreateToken(data, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -52,37 +52,67 @@ func TestCreateToken_Data(t *testing.T) {
 	}
 }
 
-func TestCreateToken_NoData(t *testing.T) {
-	gen := New("foo")
-	if _, err := gen.CreateToken(nil, nil); err == nil {
+func TestCreateTokenFailure(t *testing.T) {
+	if _, err := New("foo").CreateToken(nil, nil); err == nil {
+		t.Fatal("CreateToken without data nor option should fail")
+	}
+	if _, err := New("foo").CreateToken(Data{}, nil); err == nil {
+		t.Fatal("CreateToken with invalid data should fail")
+	}
+	ch := make(chan struct{})
+	defer close(ch)
+	if _, err := New("foo").CreateToken(Data{"uid": "1234", "invalid": ch}, &Option{}); err == nil {
+		t.Fatal("Invalid data types should make the token creation fail")
+	}
+}
+
+func TestCreateTokenAdminNoData(t *testing.T) {
+	if _, err := New("foo").CreateToken(nil, &Option{Admin: true}); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestCreateToken_Admin_NoData(t *testing.T) {
-	gen := New("foo")
-	options := &Option{
-		Admin: true,
-	}
-	if _, err := gen.CreateToken(nil, options); err != nil {
-		t.Fatal(err)
+func TestCreateTokenTooLong(t *testing.T) {
+	if _, err := New("foo").CreateToken(Data{"uid": "1", "bigKey": randData(t, 1024)}, nil); err == nil {
+		t.Fatal("Token too long should have failed")
 	}
 }
 
-func TestCreateToken_TooLong(t *testing.T) {
-	gen := New("foo")
-	data := Data{"uid": "1", "bigKey": randData(1024)}
-	if _, err := gen.CreateToken(data, nil); err == nil {
-		t.Fatal("should have failed")
-	}
-}
-
-func randData(size int) string {
+func randData(t *testing.T, size int) string {
 	alphanum := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	var bytes = make([]byte, size)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+		t.Fatal(err)
+	}
 	for i, b := range bytes {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
 	return string(bytes)
+}
+
+func TestValidate(t *testing.T) {
+	if err := validate(nil, false); err != ErrNoUIDKey {
+		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrNoUIDKey, err)
+	}
+	if err := validate(Data{"uid": 42}, true); err != ErrUIDNotString {
+		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrUIDNotString, err)
+	}
+	if err := validate(Data{"uid": strings.Repeat(" ", MaxUIDLen+1)}, true); err != ErrUIDTooLong {
+		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrUIDTooLong, err)
+	}
+	// No uid in admin mode should not fail.
+	if err := validate(Data{}, true); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestGenerateClaim(t *testing.T) {
+	buf, err := generateClaim(Data{"uid": "42"}, &Option{Admin: true}, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if expect, got := `{"admin":true,"v":0,"d":{"uid":"42"},"iat":0}`, string(buf); expect != got {
+		t.Fatalf("Unexpected claim\nExpect:\t%s\nGot:\t%s", expect, got)
+	}
 }
