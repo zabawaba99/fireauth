@@ -10,15 +10,15 @@ import (
 )
 
 func TestNew(t *testing.T) {
-	gen := New("foo")
-	if gen == nil {
+	if gen := New("foo"); gen == nil {
 		t.Fatal("generator should not be nil")
 	}
 }
 
-func TestCreateToken_Data(t *testing.T) {
+func TestCreateTokenData(t *testing.T) {
 	gen := New("foo")
 	data := Data{"uid": "1"}
+
 	token, err := gen.CreateToken(data, nil)
 	if err != nil {
 		t.Fatal(err)
@@ -52,35 +52,29 @@ func TestCreateToken_Data(t *testing.T) {
 	}
 }
 
-func TestCreateToken_NoData(t *testing.T) {
-	gen := New("foo")
-	if _, err := gen.CreateToken(nil, nil); err == nil {
+func TestCreateTokenNoData(t *testing.T) {
+	if _, err := New("foo").CreateToken(nil, nil); err == nil {
+		t.Fatal("CreateToken without data nor option should fail")
+	}
+}
+
+func TestCreateTokenAdminNoData(t *testing.T) {
+	if _, err := New("foo").CreateToken(nil, &Option{Admin: true}); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestCreateToken_Admin_NoData(t *testing.T) {
-	gen := New("foo")
-	options := &Option{
-		Admin: true,
-	}
-	if _, err := gen.CreateToken(nil, options); err != nil {
-		t.Fatal(err)
+func TestCreateTokenTooLong(t *testing.T) {
+	if _, err := New("foo").CreateToken(Data{"uid": "1", "bigKey": randData(t, 1024)}, nil); err == nil {
+		t.Fatal("Token too long should have failed")
 	}
 }
 
-func TestCreateToken_TooLong(t *testing.T) {
-	gen := New("foo")
-	data := Data{"uid": "1", "bigKey": randData(1024)}
-	if _, err := gen.CreateToken(data, nil); err == nil {
-		t.Fatal("should have failed")
-	}
-}
-
-func randData(size int) string {
+func randData(t *testing.T, size int) string {
 	alphanum := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	var bytes = make([]byte, size)
-	rand.Read(bytes)
+	if _, err := rand.Read(bytes); err != nil {
+	}
 	for i, b := range bytes {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
 	}
