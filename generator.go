@@ -85,7 +85,7 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 
 	// setup the claims for the token
 	claim := struct {
-		*Option
+		*Option  `json:"Options,omitempty"`
 		Version  int   `json:"v"`
 		Data     Data  `json:"d"`
 		IssuedAt int64 `json:"iat"`
