@@ -18,6 +18,15 @@ const (
 	TokenSep = "."
 )
 
+// Generic errors
+var (
+	ErrNoUIDKey           = errors.New(`Data payload must contain a "uid" key`)
+	ErrUIDNotString       = errors.New(`Data payload key "uid" must be a string`)
+	ErrUIDTooLong         = errors.New(`Data payload key "uid" must not be longer than 256 characters`)
+	ErrEmptyDataNoOptions = errors.New("Data is empty and no options are set.  This token will have no effect on Firebase.")
+	ErrTokenTooLong       = errors.New("Generated token is too long. The token cannot be longer than 1024 bytes.")
+)
+
 // Generator represents a token generator
 type Generator struct {
 	secret string
@@ -58,7 +67,7 @@ func New(secret string) *Generator {
 func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	// make sure we have valid parameters
 	if data == nil && (options == nil || (!options.Admin && !options.Debug)) {
-		return "", errors.New("Data is empty and no options are set.  This token will have no effect on Firebase.")
+		return "", ErrEmptyDataNoOptions
 	}
 
 	// validate the data
@@ -98,7 +107,7 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	token := fmt.Sprintf("%s%s%s", secureString, TokenSep, signature)
 
 	if len(token) > 1024 {
-		return "", errors.New("Generated token is too long. The token cannot be longer than 1024 bytes.")
+		return "", ErrTokenTooLong
 	}
 	return token, nil
 }
@@ -122,15 +131,15 @@ func encodedHeader() (string, error) {
 func validate(data Data, isAdmind bool) error {
 	uid, containsID := data["uid"]
 	if !containsID && !isAdmind {
-		return errors.New(`Data payload must contain a "uid" key`)
+		return ErrNoUIDKey
 	}
 
 	if _, isString := uid.(string); containsID && !isString {
-		return errors.New(`Data payload key "uid" must be a string`)
+		return ErrUIDNotString
 	}
 
 	if containsID && len(uid.(string)) > 256 {
-		return errors.New(`Data payload key "uid" must not be longer than 256 characters`)
+		return ErrUIDTooLong
 	}
 	return nil
 }
