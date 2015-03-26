@@ -82,6 +82,7 @@ func randData(t *testing.T, size int) string {
 	alphanum := "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 	var bytes = make([]byte, size)
 	if _, err := rand.Read(bytes); err != nil {
+		t.Fatal(err)
 	}
 	for i, b := range bytes {
 		bytes[i] = alphanum[b%byte(len(alphanum))]
@@ -98,5 +99,16 @@ func TestValidate(t *testing.T) {
 	}
 	if err := validate(Data{"uid": strings.Repeat(" ", MaxUIDLen+1)}, true); err != ErrUIDTooLong {
 		t.Fatalf("Unexpected error. Expected: %s, Got: %v", ErrUIDTooLong, err)
+	}
+}
+
+func TestGenerateClaim(t *testing.T) {
+	buf, err := generateClaim(Data{"uid": "42"}, &Option{Admin: true}, 0)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if expect, got := `{"admin":true,"v":0,"d":{"uid":"42"},"iat":0}`, string(buf); expect != got {
+		t.Fatalf("Unexpected claim\nExpect:\t%s\nGot:\t%s", expect, got)
 	}
 }

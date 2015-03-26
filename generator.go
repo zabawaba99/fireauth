@@ -73,6 +73,21 @@ func New(secret string) *Generator {
 	}
 }
 
+func generateClaim(data Data, options *Option, issuedAt int64) ([]byte, error) {
+	// setup the claims for the token
+	return json.Marshal(struct {
+		*Option
+		Version  int   `json:"v"`
+		Data     Data  `json:"d"`
+		IssuedAt int64 `json:"iat"`
+	}{
+		Option:   options,
+		Version:  Version,
+		Data:     data,
+		IssuedAt: issuedAt,
+	})
+}
+
 // CreateToken generates a new token with the given Data and options
 func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	// make sure we have valid parameters
@@ -85,27 +100,13 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 		return "", err
 	}
 
-	// setup the claims for the token
-	claim := struct {
-		*Option  `json:"Options,omitempty"`
-		Version  int   `json:"v"`
-		Data     Data  `json:"d"`
-		IssuedAt int64 `json:"iat"`
-	}{
-		Option:   options,
-		Version:  Version,
-		Data:     data,
-		IssuedAt: time.Now().Unix(),
-	}
-
-	// generate the encoded claims
-	claimBytes, err := json.Marshal(claim)
+	claim, err := generateClaim(data, options, time.Now().UTC().Unix())
 	if err != nil {
 		return "", err
 	}
 
 	// create the token
-	secureString := encodedHeader + TokenSep + encode(claimBytes)
+	secureString := encodedHeader + TokenSep + encode(claim)
 	signature := sign(secureString, t.secret)
 	token := secureString + TokenSep + signature
 
