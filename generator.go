@@ -18,6 +18,14 @@ const (
 	TokenSep = "."
 )
 
+// Firebase specific values for header
+const (
+	TokenAlgorithm = "HS256"
+	TokenType      = "JWT"
+)
+
+var encodedHeader = encode([]byte(fmt.Sprintf(`{"alg": "%s", "typ": "%s"}`, TokenAlgorithm, TokenType)))
+
 // Generic errors
 var (
 	ErrNoUIDKey           = errors.New(`Data payload must contain a "uid" key`)
@@ -75,12 +83,6 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 		return "", err
 	}
 
-	// generate the encoded headers
-	encodedHeader, err := encodedHeader()
-	if err != nil {
-		return "", err
-	}
-
 	// setup the claims for the token
 	claim := struct {
 		*Option
@@ -99,33 +101,16 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	encodedClaim := encode(claimBytes)
 
 	// create the token
-	secureString := fmt.Sprintf("%s%s%s", encodedHeader, TokenSep, encodedClaim)
+	secureString := encodedHeader + TokenSep + encode(claimBytes)
 	signature := sign(secureString, t.secret)
-	token := fmt.Sprintf("%s%s%s", secureString, TokenSep, signature)
+	token := secureString + TokenSep + signature
 
 	if len(token) > 1024 {
 		return "", ErrTokenTooLong
 	}
 	return token, nil
-}
-
-func encodedHeader() (string, error) {
-	headers := struct {
-		Algorithm string `json:"alg"`
-		Type      string `json:"typ"`
-	}{
-		Algorithm: "HS256",
-		Type:      "JWT",
-	}
-
-	headerBytes, err := json.Marshal(headers)
-	if err != nil {
-		return "", err
-	}
-	return encode(headerBytes), nil
 }
 
 func validate(data Data, isAdmind bool) error {
