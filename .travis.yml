@@ -5,9 +5,30 @@ go:
   - 1.4
   - tip
 
-before_install:
+matrix:
+  allow_failures:
+    - go: tip
+
+install:
+  # linters
+  - go get github.com/golang/lint/golint
+  - go get golang.org/x/tools/cmd/vet
+  - go get github.com/stretchr/testify
+  # code coverage
   - go get github.com/axw/gocov/gocov
   - go get github.com/mattn/goveralls
   - if ! go get code.google.com/p/go.tools/cmd/cover; then go get golang.org/x/tools/cmd/cover; fi
+
 script:
-    - $HOME/gopath/bin/goveralls -service=travis-ci -repotoken=$COVERALLS
+  # make sure everything actually works
+  - go build
+  # make sure code is properly formatted and simplified
+  - gofmt -l -s .
+  # check for possible uh ohs
+  - go vet ./...
+  # run tests checking for race conditions
+  - $HOME/gopath/bin/goveralls -service=travis-ci -repotoken=$COVERALLS -v -race
+
+after_success:
+  # dust the code a bit
+  - golint .
