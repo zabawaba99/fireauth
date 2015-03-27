@@ -6,7 +6,6 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"strings"
 	"time"
 )
@@ -26,7 +25,7 @@ const (
 	TokenType      = "JWT"
 )
 
-var encodedHeader = encode([]byte(fmt.Sprintf(`{"alg": "%s", "typ": "%s"}`, TokenAlgorithm, TokenType)))
+var encodedHeader = encode([]byte(`{"alg": "` + TokenAlgorithm + `", "typ": "` + TokenType + `"}`))
 
 // Generic errors
 var (
