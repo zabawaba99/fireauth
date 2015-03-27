@@ -10,10 +10,11 @@ matrix:
     - go: tip
 
 install:
+  # get dependencies
+  - go get -t
   # linters
   - go get github.com/golang/lint/golint
   - go get golang.org/x/tools/cmd/vet
-  - go get github.com/stretchr/testify
   # code coverage
   - go get github.com/axw/gocov/gocov
   - go get github.com/mattn/goveralls
