@@ -136,5 +136,7 @@ func encode(data []byte) string {
 }
 
 func sign(message, secret string) string {
-	return encode(hmac.New(sha256.New, []byte(secret)).Sum([]byte(message)))
+	h := hmac.New(sha256.New, []byte(secret))
+	h.Write([]byte(message))
+	return encode(h.Sum(nil))
 }

@@ -116,3 +116,24 @@ func TestGenerateClaim(t *testing.T) {
 		t.Fatalf("Unexpected claim\nExpect:\t%s\nGot:\t%s", expect, got)
 	}
 }
+
+func TestSign(t *testing.T) {
+	g := struct {
+		key string
+		in  string
+		out string
+	}{
+		key: "you cannot see me",
+		in:  "the winter is comming",
+		out: "ytb5HiGUKtRhJg02DXS-serVBwbxud08FFNcx6dty78",
+		// use the following code segmentation to generate the output
+		// h := hmac.New(sha256.New, []byte(key))
+		// h.Write([]byte(in))
+		// out := encode(h.Sum(nil))
+	}
+
+	got := sign(g.in, g.key)
+	if g.out != got {
+		t.Fatalf("expect:%v, but got:%v", g.out, got)
+	}
+}
