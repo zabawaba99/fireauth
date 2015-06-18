@@ -42,7 +42,7 @@ You can also create a token with options
 
 ```go
 data := fireauth.Data{"uid": "1"}
-options := &fireauth.Options{
+options := &fireauth.Option{
   NotBefore: 2,
   Expiration: 3,
   Admin: false,
