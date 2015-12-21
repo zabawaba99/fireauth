@@ -28,7 +28,7 @@ script:
   # check for possible uh ohs
   - go vet ./...
   # run tests checking for race conditions
-  - $HOME/gopath/bin/goveralls -service=travis-ci -repotoken=$COVERALLS -v -race
+  - $HOME/gopath/bin/goveralls -service=travis-ci -repotoken=$COVERALLS -v
 
 after_success:
   # dust the code a bit
