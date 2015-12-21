@@ -89,13 +89,17 @@ func generateClaim(data Data, options *Option, issuedAt int64) ([]byte, error) {
 
 // CreateToken generates a new token with the given Data and options
 func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
+	if options == nil {
+		options = new(Option)
+	}
+
 	// make sure we have valid parameters
-	if data == nil && (options == nil || (!options.Admin && !options.Debug)) {
+	if data == nil && !options.Admin && !options.Debug {
 		return "", ErrEmptyDataNoOptions
 	}
 
 	// validate the data
-	if err := validate(data, (options != nil && options.Admin)); err != nil {
+	if err := validate(data, options.Admin); err != nil {
 		return "", err
 	}
 
@@ -115,9 +119,9 @@ func (t *Generator) CreateToken(data Data, options *Option) (string, error) {
 	return token, nil
 }
 
-func validate(data Data, isAdmind bool) error {
+func validate(data Data, isAdmin bool) error {
 	uid, containsID := data["uid"]
-	if !containsID && !isAdmind {
+	if !containsID && !isAdmin {
 		return ErrNoUIDKey
 	}
 
